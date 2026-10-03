@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroLoop — Sell Farm Waste, Earn Money & Protect Environment</title>
+    <meta name="description" content="AgroLoop helps farmers sell crop waste to biogas plants, earn carbon credits, and stop stubble burning.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="light-theme">
+
+    <!-- ================================================================
+         LOGIN / REGISTRATION OVERLAY
+         ================================================================ -->
+    <div class="login-overlay active" id="loginOverlay">
+        <div class="login-bg-art"></div>
+        <div class="login-container">
+            <!-- Step 1: Registration -->
+            <div class="login-card" id="loginStep1">
+                <div class="login-logo">
+                    <span class="login-logo-icon">🌾</span>
+                    <h1 data-i18n="appName">AgroLoop</h1>
+                    <p class="login-tagline" data-i18n="loginTagline">Sell Farm Waste • Earn Money • Save Earth</p>
+                </div>
+
+                <form id="registerForm" class="login-form">
+                    <div class="form-group">
+                        <label data-i18n="fullNameLabel">Full Name</label>
+                        <input type="text" id="regFullName" class="form-control" data-i18n-placeholder="fullNamePlaceholder" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="contactLabel">Mobile Number or Email</label>
+                        <input type="text" id="regContact" class="form-control" data-i18n-placeholder="contactPlaceholder" placeholder="e.g. 9876543210 or name@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="locationLabel">Village / City / Town</label>
+                        <input type="text" id="regLocation" class="form-control" data-i18n-placeholder="locationPlaceholder" placeholder="e.g. Nashik, Sinnar, Deola" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary full-width login-submit-btn">
+                        <span data-i18n="sendOtpBtn">Send OTP →</span>
+                    </button>
+                </form>
+
+                <div class="login-lang-row">
+                    <label data-i18n="chooseLangLabel">Choose Language:</label>
+                    <select id="loginLangSelect" class="lang-select">
+                        <option value="en" selected>🇮🇳 English</option>
+                        <option value="hi">🇮🇳 हिंदी</option>
+                        <option value="mr">🇮🇳 मराठी</option>
+                        <option value="gu">🇮🇳 ગુજરાતી</option>
+                        <option value="pa">🇮🇳 ਪੰਜਾਬੀ</option>
+                        <option value="bn">🇮🇳 বাংলা</option>
+                        <option value="ta">🇮🇳 தமிழ்</option>
+                        <option value="te">🇮🇳 తెలుగు</option>
+                        <option value="kn">🇮🇳 ಕನ್ನಡ</option>
+                        <option value="ml">🇮🇳 മലയാളം</option>
+                        <option value="or">🇮🇳 ଓଡ଼ିଆ</option>
+                        <option value="as">🇮🇳 অসমীয়া</option>
+                        <option value="ur">🇮🇳 اردو</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Step 2: OTP Verification -->
+            <div class="login-card" id="loginStep2" style="display:none;">
+                <div class="login-logo">
+                    <span class="login-logo-icon">🔐</span>
+                    <h2 data-i18n="otpTitle">Verify OTP</h2>
+                    <p class="login-tagline" id="otpSentMsg" data-i18n="otpSubtitle">We sent a 4-digit code to your number/email</p>
+                </div>
+                <form id="otpForm" class="login-form">
+                    <div class="form-group">
+                        <label data-i18n="enterOtpLabel">Enter OTP</label>
+                        <input type="text" id="regOtp" class="form-control otp-input" maxlength="4" data-i18n-placeholder="otpPlaceholder" placeholder="● ● ● ●" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary full-width login-submit-btn">
+                        <span data-i18n="verifyBtn">Verify & Start →</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary full-width" id="resendOtpBtn" data-i18n="resendOtp">Resend OTP</button>
+                    <button type="button" class="link-btn" id="backToStep1" data-i18n="changeDetails">← Change Details</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         MAIN APPLICATION WRAPPER (with mobile frame)
+         ================================================================ -->
+    <div class="app-wrapper mobile-frame-mode" id="appWrapper" style="display:none;">
+
+        <!-- Top Control Bar (outside the phone frame) -->
+        <header class="top-controls-bar">
+            <div class="brand-badge">
+                <span class="logo-icon">🌾</span>
+                <div class="brand-title">
+                    <strong>AgroLoop</strong>
+                    <span class="badge-tag" data-i18n="badgeTag">Farmer Hub</span>
+                </div>
+            </div>
+
+            <div class="control-actions">
+                <button id="viewToggleBtn" class="action-icon-btn">
+                    <span class="icon">📱</span>
+                    <span class="btn-text" data-i18n="mobileView">Mobile View</span>
+                </button>
+
+                <button id="themeToggleBtn" class="action-icon-btn theme-toggle-btn">
+                    <span class="icon">🌙</span>
+                    <span class="btn-text" id="themeText" data-i18n="darkMode">Dark Mode</span>
+                </button>
+
+                <div class="lang-selector-wrap">
+                    <select id="langSelect" class="lang-select">
+                        <option value="en" selected>🇮🇳 English</option>
+                        <option value="hi">🇮🇳 हिंदी</option>
+                        <option value="mr">🇮🇳 मराठी</option>
+                        <option value="gu">🇮🇳 ગુજરાતી</option>
+                        <option value="pa">🇮🇳 ਪੰਜਾਬੀ</option>
+                        <option value="bn">🇮🇳 বাংলা</option>
+                        <option value="ta">🇮🇳 தமிழ்</option>
+                        <option value="te">🇮🇳 తెలుగు</option>
+                        <option value="kn">🇮🇳 ಕನ್ನಡ</option>
+                        <option value="ml">🇮🇳 മലയാളം</option>
+                        <option value="or">🇮🇳 ଓଡ଼ିଆ</option>
+                        <option value="as">🇮🇳 অসমীয়া</option>
+                        <option value="ur">🇮🇳 اردو</option>
+                    </select>
+                </div>
+
+                <button id="logoutBtn" class="action-icon-btn" title="Logout">
+                    <span class="icon">🚪</span>
+                    <span class="btn-text" data-i18n="logoutBtn">Logout</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mobile Device Frame -->
+        <div class="mobile-device-outer">
+            <div class="mobile-speaker-bar"></div>
+            <div class="mobile-screen" id="mobileScreen">
+
+                <!-- App Header with User Info -->
+                <div class="app-header">
+                    <div class="user-greeting" id="profileBtn" style="cursor:pointer;" title="Edit Profile">
+                        <div class="avatar-ring">
+                            <span class="avatar-emoji">👨‍🌾</span>
+                            <span class="status-dot"></span>
+                            <span class="avatar-edit-icon">✏️</span>
+                        </div>
+                        <div class="user-info">
+                            <span class="greeting-sub" data-i18n="greetingSub">Welcome back,</span>
+                            <h2 class="user-name" id="displayUserName">Farmer</h2>
+                            <span class="loc-badge" id="displayUserLoc">📍 Location</span>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <button class="lang-icon-btn" id="openLangPicker" title="Change Language">
+                            <span class="icon">🌐</span>
+                        </button>
+                        <button class="theme-icon-btn" id="mobileThemeBtn" title="Toggle Theme">
+                            <span class="icon">🌙</span>
+                        </button>
+                        <button class="notif-btn" id="notifBtn" title="Notifications">
+                            <span class="bell-icon">🔔</span>
+                            <span class="notif-badge">0</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scrollable Content Area -->
+                <div class="app-content" id="appContent">
+
+                    <!-- ============================================================
+                         SECTION 1: FARMER COMMAND CENTER (DASHBOARD)
+                         ============================================================ -->
+                    <section class="app-section" id="secDashboard">
+                        <div class="section-title-bar">
+                            <span class="section-num">1</span>
+                            <h2 class="section-heading" data-i18n="sec1Title">📊 My Farm Dashboard</h2>
+                        </div>
+
+                        <!-- AgroScore Card -->
+                        <div class="card agroscore-card">
+                            <div class="score-top">
+                                <div class="score-info">
+                                    <span class="card-label" data-i18n="agroScoreLabel">YOUR AGROSCORE</span>
+                                    <div class="score-num-wrap">
+                                        <span class="score-value" id="agroScoreVal">0</span>
+                                        <span class="score-total">/ 100</span>
+                                    </div>
+                                    <div class="score-status" data-i18n="agroScoreStatus">🌟 Start selling waste to increase your score!</div>
+                                </div>
+                                <div class="score-ring-wrap">
+                                    <svg class="score-ring" viewBox="0 0 100 100">
+                                        <circle class="ring-bg" cx="50" cy="50" r="42" />
+                                        <circle class="ring-fill" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264" />
+                                    </svg>
+                                    <span class="ring-center-icon">🌱</span>
+                                </div>
+                            </div>
+                            <div class="score-footer">
+                                <div class="score-stat">
+                                    <span class="stat-label" data-i18n="wasteSoldLabel">Waste Sold</span>
+                                    <span class="stat-val" id="statWasteSold">0 Tons</span>
+                                </div>
+                                <div class="score-divider"></div>
+                                <div class="score-stat">
+                                    <span class="stat-label" data-i18n="totalEarnedLabel">Total Earned</span>
+                                    <span class="stat-val highlight-green" id="statTotalEarned">₹0</span>
+                                </div>
+                                <div class="score-divider"></div>
+                                <div class="score-stat">
+                                    <span class="stat-label" data-i18n="co2SavedLabel">CO₂ Saved</span>
+                                    <span class="stat-val" id="statCO2Saved">0 kg</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 6-Step Cycle Quick Actions -->
+                        <div class="section-block">
+                            <h3 class="block-title" data-i18n="cycleActionsTitle">🔄 6-Step AgroLoop Cycle</h3>
+                            <div class="cycle-grid">
+                                <button class="cycle-card" id="cycleCollect" data-action="sell">
+                                    <span class="cycle-icon">📦</span>
+                                    <strong data-i18n="cycleCollect">Collect & Sell</strong>
+                                    <span data-i18n="cycleCollectDesc">List your waste</span>
+                                </button>
+                                <button class="cycle-card" id="cycleRecover" data-action="recover">
+                                    <span class="cycle-icon">♻️</span>
+                                    <strong data-i18n="cycleRecover">Recover & Store</strong>
+                                    <span data-i18n="cycleRecoverDesc">Safe storage tips</span>
+                                </button>
+                                <button class="cycle-card" id="cycleLearn" data-action="learn">
+                                    <span class="cycle-icon">📚</span>
+                                    <strong data-i18n="cycleLearn">Learn & Act</strong>
+                                    <span data-i18n="cycleLearnDesc">Watch tutorials</span>
+                                </button>
+                                <button class="cycle-card" id="cycleMonitor" data-action="monitor">
+                                    <span class="cycle-icon">📈</span>
+                                    <strong data-i18n="cycleMonitor">Monitor Earnings</strong>
+                                    <span data-i18n="cycleMonitorDesc">Track your income</span>
+                                </button>
+                                <button class="cycle-card" id="cycleProve" data-action="prove">
+                                    <span class="cycle-icon">🏅</span>
+                                    <strong data-i18n="cycleProve">Prove Impact</strong>
+                                    <span data-i18n="cycleProveDesc">Carbon certificates</span>
+                                </button>
+                                <button class="cycle-card" id="cyclePlan" data-action="plan">
+                                    <span class="cycle-icon">🔮</span>
+                                    <strong data-i18n="cyclePlan">Pre-Harvest</strong>
+                                    <span data-i18n="cyclePlanDesc">Book buyers early</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Monthly Earnings Summary -->
+                        <div class="card monthly-earnings-card">
+                            <div class="card-head">
+                                <h3 data-i18n="monthlyEarningsTitle">💰 Monthly Earnings Summary</h3>
+                                <span class="badge green-badge" id="earningsMonth">Oct 2026</span>
+                            </div>
+                            <div class="earnings-breakdown">
+                                <div class="earn-row">
+                                    <span class="earn-label" data-i18n="directWasteSales">Direct Waste Sales</span>
+                                    <span class="earn-val" id="earnDirectSales">₹0</span>
+                                </div>
+                                <div class="earn-row">
+                                    <span class="earn-label" data-i18n="carbonCreditsEarned">Carbon Credits</span>
+                                    <span class="earn-val" id="earnCarbonCredits">₹0</span>
+                                </div>
+                                <div class="earn-divider"></div>
+                                <div class="earn-row total-row">
+                                    <span class="earn-label" data-i18n="totalExtraIncome">Total Extra Income</span>
+                                    <span class="earn-val highlight-green" id="earnTotal">₹0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Listing Preview -->
+                        <div class="card active-listing-preview" id="activeListingPreview" style="display:none;">
+                            <div class="card-head">
+                                <h3 data-i18n="activeListingTitle">🌾 Active Listing</h3>
+                                <span class="badge gold-badge" id="previewBidCount">0 bids</span>
+                            </div>
+                            <div class="preview-listing-info">
+                                <div class="preview-crop-name" id="previewCropName">—</div>
+                                <div class="preview-details">
+                                    <span id="previewQty">0 Tons</span> • <span id="previewDate">—</span>
+                                </div>
+                                <button class="btn btn-primary sm" id="btnViewBids" data-i18n="viewBidsBtn">View Bids →</button>
+                            </div>
+                        </div>
+
+                        <!-- Sell Waste Big Action Button -->
+                        <button class="big-action-btn" id="openSellModalBtn">
+                            <span class="big-action-icon">🌾</span>
+                            <div class="big-action-text">
+                                <strong data-i18n="sellWasteBtn">Sell My Farm Waste Now</strong>
+                                <span data-i18n="sellWasteSub">List sugarcane, rice straw, corn stalks, or manure</span>
+                            </div>
+                            <span class="big-action-arrow">→</span>
+                        </button>
+                    </section>
+
+                    <!-- ============================================================
+                         SECTION 2: LIVE WASTE AUCTION MARKETPLACE
+                         ============================================================ -->
+                    <section class="app-section" id="secMarketplace">
+                        <div class="section-title-bar">
+                            <span class="section-num">2</span>
+                            <h2 class="section-heading" data-i18n="sec2Title">💰 Sell Waste & Earn</h2>
+                        </div>
+
+                        <!-- 1-Tap List New Waste Banner -->
+                        <button class="list-waste-banner" id="bannerListWaste">
+                            <span class="banner-icon">➕</span>
+                            <div class="banner-text">
+                                <strong data-i18n="listNewWasteBanner">List New Waste in 30 Seconds</strong>
+                                <span data-i18n="listNewWasteDesc">Sugarcane, rice straw, corn stalks, or manure</span>
+                            </div>
+                            <span class="banner-arrow">→</span>
+                        </button>
+
+                        <!-- My Active Listings -->
+                        <div class="card">
+                            <div class="card-head">
+                                <h3 data-i18n="myListingsTitle">📋 My Active Listings</h3>
+                            </div>
+                            <div id="myListingsArea" class="empty-state">
+                                <span class="empty-icon">📦</span>
+                                <p data-i18n="noListingsMsg">You have no active listings yet.</p>
+                                <button class="btn btn-primary sm" id="btnAddFirstListing" data-i18n="addFirstListing">+ Add Your First Listing</button>
+                            </div>
+                        </div>
+
+                        <!-- Live Bidding Stream -->
+                        <div class="card live-bidding-card">
+                            <div class="card-head">
+                                <h3 data-i18n="liveBiddingTitle">⚡ Live Bidding Stream</h3>
+                                <span class="badge live-badge">
+                                    <span class="live-dot"></span>
+                                    <span data-i18n="liveLabel">LIVE</span>
+                                </span>
+                            </div>
+                            <div id="liveBiddingArea" class="bidding-stream">
+                                <div class="bid-empty-msg" data-i18n="noBidsYet">List waste to receive live bids from buyers!</div>
+                            </div>
+                        </div>
+
+                        <!-- Market Prices -->
+                        <div class="section-block">
+                            <h3 class="block-title" data-i18n="marketPricesTitle">📊 Today's Waste Market Prices</h3>
+                            <div class="prices-grid">
+                                <div class="price-tile">
+                                    <span class="tile-icon">🎋</span>
+                                    <span class="tile-name" data-i18n="sugarcaneBagasse">Sugarcane Bagasse</span>
+                                    <span class="tile-price">₹520 - ₹580 / <span data-i18n="perTon">ton</span></span>
+                                    <span class="trend up">▲ +12%</span>
+                                </div>
+                                <div class="price-tile">
+                                    <span class="tile-icon">🌾</span>
+                                    <span class="tile-name" data-i18n="riceStraw">Rice Straw</span>
+                                    <span class="tile-price">₹480 - ₹540 / <span data-i18n="perTon">ton</span></span>
+                                    <span class="trend up">▲ +8%</span>
+                                </div>
+                                <div class="price-tile">
+                                    <span class="tile-icon">🌽</span>
+                                    <span class="tile-name" data-i18n="cornStalks">Corn Stalks</span>
+                                    <span class="tile-price">₹450 - ₹500 / <span data-i18n="perTon">ton</span></span>
+                                    <span class="trend steady">● <span data-i18n="steady">Steady</span></span>
+                                </div>
+                                <div class="price-tile">
+                                    <span class="tile-icon">🐄</span>
+                                    <span class="tile-name" data-i18n="cattleManure">Cattle Manure</span>
+                                    <span class="tile-price">₹300 - ₹380 / <span data-i18n="perTon">ton</span></span>
+                                    <span class="trend up">▲ +15%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ============================================================
+                         SECTION 3: PRE-HARVEST PLANNER & CARBON LEDGER
+                         ============================================================ -->
+                    <section class="app-section" id="secPreHarvest">
+                        <div class="section-title-bar">
+                            <span class="section-num">3</span>
+                            <h2 class="section-heading" data-i18n="sec3Title">📅 Plan Ahead — Pre-Harvest</h2>
+                        </div>
+
+                        <!-- Pre-Harvest Predictor -->
+                        <div class="card predictor-card">
+                            <div class="card-head">
+                                <h3 data-i18n="predictorTitle">🔮 Waste Predictor</h3>
+                                <span class="badge blue-badge" data-i18n="lockBuyersEarly">Book Buyers Early</span>
+                            </div>
+                            <p class="predictor-intro" data-i18n="predictorIntro">Enter your harvest details. We will calculate how much waste you will get and find a buyer for you before harvest!</p>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label data-i18n="cropTypeLabel">Crop Type</label>
+                                    <select id="predictCrop" class="form-control">
+                                        <option value="rice" data-i18n="cropRice">Rice / Paddy Straw</option>
+                                        <option value="sugarcane" selected data-i18n="cropSugarcane">Sugarcane Bagasse</option>
+                                        <option value="corn" data-i18n="cropCorn">Corn / Maize Stalks</option>
+                                        <option value="wheat" data-i18n="cropWheat">Wheat Straw</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label data-i18n="harvestDateLabel">Expected Harvest Date</label>
+                                    <input type="date" id="predictDate" class="form-control" value="2026-10-15">
+                                </div>
+                                <div class="form-group">
+                                    <label data-i18n="harvestQtyLabel">Estimated Harvest (Bags / Tons)</label>
+                                    <input type="number" id="predictQuantity" class="form-control" value="100" data-i18n-placeholder="harvestQtyPlaceholder" placeholder="e.g. 100 bags">
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary full-width" id="btnCalculatePreHarvest">
+                                ✨ <span data-i18n="calculateBtn">Calculate Waste & Find Buyer</span>
+                            </button>
+
+                            <div class="predictor-result-box" id="predictResultBox" style="display:none;">
+                                <div class="result-header">
+                                    <h4 data-i18n="predictionResult">🎉 Prediction Result</h4>
+                                </div>
+                                <div class="result-stats">
+                                    <div class="r-stat">
+                                        <span class="r-lbl" data-i18n="estimatedWaste">Estimated Waste</span>
+                                        <span class="r-val" id="resWasteTons">0 Tons</span>
+                                    </div>
+                                    <div class="r-stat">
+                                        <span class="r-lbl" data-i18n="matchedBuyer">Matched Buyer</span>
+                                        <span class="r-val" id="resBuyerName">—</span>
+                                    </div>
+                                    <div class="r-stat">
+                                        <span class="r-lbl" data-i18n="expectedPrice">Expected Price</span>
+                                        <span class="r-val highlight-green" id="resLockedPrice">₹0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Carbon Credit Calculator -->
+                        <div class="card carbon-calc-card">
+                            <div class="card-head">
+                                <h3 data-i18n="carbonCalcTitle">🌍 Carbon Credit Calculator</h3>
+                            </div>
+                            <p class="sub-txt" data-i18n="carbonCalcDesc">Every ton of waste you sell (instead of burning) earns you carbon credits = extra money!</p>
+
+                            <div class="carbon-slider-wrap">
+                                <label><span data-i18n="tonsNotBurned">Tons of waste NOT burned:</span> <strong id="sliderTonsVal">10 <span data-i18n="tons">Tons</span></strong></label>
+                                <input type="range" id="carbonSlider" min="1" max="50" value="10" class="range-slider">
+                            </div>
+
+                            <div class="carbon-outcome-box">
+                                <div class="c-box">
+                                    <span class="c-title" data-i18n="creditsEarned">Credits Earned</span>
+                                    <span class="c-val" id="calcCredits">5.0</span>
+                                </div>
+                                <div class="c-box">
+                                    <span class="c-title" data-i18n="extraMoney">Extra Money</span>
+                                    <span class="c-val highlight-gold" id="calcMoney">₹1,000</span>
+                                </div>
+                                <div class="c-box">
+                                    <span class="c-title" data-i18n="co2Prevented">CO₂ Prevented</span>
+                                    <span class="c-val" id="calcCO2">5,000 kg</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Proof Ledger & Bank Receipt -->
+                        <div class="card proof-ledger-card">
+                            <div class="card-head">
+                                <h3 data-i18n="proofLedgerTitle">📋 Permanent Proof Ledger</h3>
+                                <span class="badge green-badge" data-i18n="gpsVerified">GPS Verified</span>
+                            </div>
+                            <div id="proofLedgerArea" class="ledger-list">
+                                <div class="ledger-empty" data-i18n="noProofYet">Complete a sale to generate verified proof records.</div>
+                            </div>
+                            <button class="btn btn-gold full-width" id="btnExportBankProof" style="margin-top:12px;">
+                                🏦 <span data-i18n="exportBankProof">Export Bank Proof Receipt</span>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- ============================================================
+                         SECTION 4: VILLAGE LEADERBOARD & PEER NETWORK
+                         ============================================================ -->
+                    <section class="app-section" id="secCommunity">
+                        <div class="section-title-bar">
+                            <span class="section-num">4</span>
+                            <h2 class="section-heading" data-i18n="sec4Title">🤝 My Community</h2>
+                        </div>
+
+                        <!-- Village Info -->
+                        <div class="card">
+                            <div class="card-head">
+                                <h3 data-i18n="villageInfoTitle">🏘️ My Village Stats</h3>
+                            </div>
+                            <div class="village-stats-row">
+                                <div class="v-stat">
+                                    <span class="v-num" id="villageFarmers">0</span>
+                                    <span class="v-lbl" data-i18n="farmersJoined">Farmers Joined</span>
+                                </div>
+                                <div class="v-stat">
+                                    <span class="v-num" id="villageTons">0</span>
+                                    <span class="v-lbl" data-i18n="tonsSaved">Tons Saved</span>
+                                </div>
+                                <div class="v-stat">
+                                    <span class="v-num" id="villageEarnings">₹0</span>
+                                    <span class="v-lbl" data-i18n="totalVillageEarnings">Village Earnings</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- District Village Competition -->
+                        <div class="card competition-card">
+                            <div class="card-head">
+                                <h3 data-i18n="districtCompTitle">🏆 District Village Competition</h3>
+                                <span class="badge gold-badge" data-i18n="prizeLabel">₹50,000 Prize</span>
+                            </div>
+                            <p class="sub-txt" data-i18n="competitionDesc">Compete with neighboring villages. Top village wins ₹50,000 community water funding!</p>
+                            <div class="competition-bars">
+                                <div class="comp-bar-item">
+                                    <div class="comp-bar-header">
+                                        <span class="comp-name" data-i18n="block1Name">Nashik Block 1</span>
+                                        <span class="comp-tons" id="block1Tons">142 Tons</span>
+                                    </div>
+                                    <div class="comp-progress">
+                                        <div class="comp-fill" id="block1Fill" style="width:71%"></div>
+                                    </div>
+                                </div>
+                                <div class="comp-bar-item your-block">
+                                    <div class="comp-bar-header">
+                                        <span class="comp-name"><span data-i18n="block2Name">Nashik Block 2</span> <span class="your-tag" data-i18n="yourBlock">(Your Block)</span></span>
+                                        <span class="comp-tons" id="block2Tons">128 Tons</span>
+                                    </div>
+                                    <div class="comp-progress">
+                                        <div class="comp-fill your-fill" id="block2Fill" style="width:64%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top Farmers Leaderboard -->
+                        <div class="card leaderboard-card">
+                            <div class="card-head">
+                                <h3 data-i18n="leaderboardTitle">🥇 Top Farmers Leaderboard</h3>
+                            </div>
+                            <div class="leaderboard-list">
+                                <div class="leader-item gold-rank">
+                                    <span class="leader-rank">🥇</span>
+                                    <div class="leader-avatar">👨‍🌾</div>
+                                    <div class="leader-info">
+                                        <strong>Farmer Ram</strong>
+                                        <span data-i18n="leaderVillage1">Sinnar Village</span>
+                                    </div>
+                                    <span class="leader-earnings">₹25,000</span>
+                                </div>
+                                <div class="leader-item silver-rank">
+                                    <span class="leader-rank">🥈</span>
+                                    <div class="leader-avatar">👩‍🌾</div>
+                                    <div class="leader-info">
+                                        <strong>Farmer Geeta</strong>
+                                        <span data-i18n="leaderVillage2">Deola Village</span>
+                                    </div>
+                                    <span class="leader-earnings">₹22,500</span>
+                                </div>
+                                <div class="leader-item bronze-rank">
+                                    <span class="leader-rank">🥉</span>
+                                    <div class="leader-avatar">👩‍🌾</div>
+                                    <div class="leader-info">
+                                        <strong>Farmer Priya</strong>
+                                        <span data-i18n="leaderVillage3">Nashik Village</span>
+                                    </div>
+                                    <span class="leader-earnings">₹21,000</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Video Tutorials -->
+                        <div class="card videos-card">
+                            <div class="card-head">
+                                <h3 data-i18n="videoTutorialsTitle">🎬 Success Stories & Tutorials</h3>
+                            </div>
+                            <div class="video-search-wrap">
+                                <input type="text" id="videoSearchInput" class="form-control" data-i18n-placeholder="videoSearchPlaceholder" placeholder="Search farming videos on YouTube...">
+                                <button class="btn btn-primary sm" id="btnVideoSearch">🔍</button>
+                            </div>
+                            <div class="video-cards-row">
+                                <a class="video-card" href="https://www.youtube.com/results?search_query=farmer+sugarcane+waste+selling+income" target="_blank" rel="noopener" id="videoGeeta">
+                                    <div class="video-thumb">
+                                        <span class="video-play-icon">▶</span>
+                                        <span class="video-lang-tag">मराठी</span>
+                                        <span class="yt-badge">YouTube</span>
+                                    </div>
+                                    <div class="video-info">
+                                        <strong data-i18n="videoGeeta">Farmer Geeta's Story</strong>
+                                        <span data-i18n="videoGeetaDesc">Earned ₹22,500 from sugarcane waste</span>
+                                    </div>
+                                </a>
+                                <a class="video-card" href="https://www.youtube.com/results?search_query=how+to+sell+crop+waste+farming+tips+hindi" target="_blank" rel="noopener" id="videoRam">
+                                    <div class="video-thumb">
+                                        <span class="video-play-icon">▶</span>
+                                        <span class="video-lang-tag">हिंदी</span>
+                                        <span class="yt-badge">YouTube</span>
+                                    </div>
+                                    <div class="video-info">
+                                        <strong data-i18n="videoRam">Farmer Ram's Guide</strong>
+                                        <span data-i18n="videoRamDesc">How to list & get best price</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Peer Chat -->
+                        <div class="card peer-chat-card">
+                            <div class="card-head">
+                                <h3 data-i18n="peerChatTitle">💬 Farmer Peer Chat</h3>
+                                <span class="badge green-badge" id="onlineFarmers" data-i18n="onlineLabel">12 Online</span>
+                            </div>
+                            <div id="chatMessages" class="chat-messages">
+                                <div class="chat-msg incoming">
+                                    <span class="chat-sender">👨‍🌾 Ram:</span>
+                                    <span data-i18n="chatMsg1">Got ₹575/ton for bagasse today! 🎉</span>
+                                </div>
+                                <div class="chat-msg incoming">
+                                    <span class="chat-sender">👩‍🌾 Geeta:</span>
+                                    <span data-i18n="chatMsg2">Which buyer? I want to sell too!</span>
+                                </div>
+                                <div class="chat-msg incoming">
+                                    <span class="chat-sender">👨‍🌾 Ram:</span>
+                                    <span data-i18n="chatMsg3">BioEnergy Ltd. Very fast pickup.</span>
+                                </div>
+                            </div>
+                            <div class="chat-input-wrap">
+                                <input type="text" id="chatInput" class="form-control" data-i18n-placeholder="chatPlaceholder" placeholder="Type your message...">
+                                <button class="btn btn-primary sm" id="btnSendChat">
+                                    <span data-i18n="sendBtn">Send</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Help & Learn -->
+                        <div class="card">
+                            <div class="card-head">
+                                <h3 data-i18n="helpTitle">📞 Need Help?</h3>
+                            </div>
+                            <div class="help-actions">
+                                <button class="help-btn" id="btnCallHelp">
+                                    <span class="help-icon">📞</span>
+                                    <span data-i18n="callHelpline">Call Helpline</span>
+                                </button>
+                                <button class="help-btn" id="btnWhatsapp">
+                                    <span class="help-icon">💬</span>
+                                    <span data-i18n="whatsappHelp">WhatsApp Help</span>
+                                </button>
+                                <button class="help-btn" id="btnWatchVideo">
+                                    <span class="help-icon">🎬</span>
+                                    <span data-i18n="watchGuide">Watch Video Guide</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Proof & Records -->
+                        <div class="card">
+                            <div class="card-head">
+                                <h3 data-i18n="recordsTitle">📋 My Records & Proof</h3>
+                            </div>
+                            <div id="recordsArea" class="empty-state">
+                                <span class="empty-icon">📄</span>
+                                <p data-i18n="noRecordsMsg">Your sale records will appear here after your first transaction.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                </div><!-- /.app-content -->
+
+                <!-- Bottom Navigation (inside mobile screen) -->
+                <nav class="bottom-nav" id="bottomNav">
+                    <button class="nav-tab active" data-section="secDashboard">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label" data-i18n="navDashboard">Dashboard</span>
+                    </button>
+                    <button class="nav-tab" data-section="secMarketplace">
+                        <span class="nav-icon">💰</span>
+                        <span class="nav-label" data-i18n="navMarketplace">Sell</span>
+                    </button>
+                    <button class="nav-tab" data-section="secPreHarvest">
+                        <span class="nav-icon">📅</span>
+                        <span class="nav-label" data-i18n="navPreHarvest">Plan</span>
+                    </button>
+                    <button class="nav-tab" data-section="secCommunity">
+                        <span class="nav-icon">🤝</span>
+                        <span class="nav-label" data-i18n="navCommunity">Community</span>
+                    </button>
+                </nav>
+
+            </div><!-- /.mobile-screen -->
+        </div><!-- /.mobile-device-outer -->
+    </div><!-- /.app-wrapper -->
+
+    <!-- ================================================================
+         MODAL: SELL / LIST WASTE
+         ================================================================ -->
+    <div class="modal-backdrop" id="sellModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 data-i18n="listWasteTitle">🌾 List Your Farm Waste</h3>
+                <button class="close-modal-btn" id="closeSellModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="sellWasteForm">
+                    <div class="form-group">
+                        <label data-i18n="wasteTypeLabel">What type of waste?</label>
+                        <select id="modalWasteType" class="form-control">
+                            <option value="Sugarcane Bagasse" data-i18n="optSugarcane">Sugarcane Bagasse</option>
+                            <option value="Rice Straw" data-i18n="optRice">Rice Straw</option>
+                            <option value="Corn Stalks" data-i18n="optCorn">Corn Stalks</option>
+                            <option value="Wheat Straw" data-i18n="optWheat">Wheat Straw</option>
+                            <option value="Cattle Manure" data-i18n="optManure">Cattle Manure</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="howMuchLabel">How much? (Tons)</label>
+                        <input type="number" id="modalQuantity" class="form-control" value="10" data-i18n-placeholder="qtyPlaceholder" placeholder="e.g. 10">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="readyDateLabel">When is it ready?</label>
+                        <input type="date" id="modalReadyDate" class="form-control" value="2026-10-10">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="pickupAddressLabel">Pickup Address</label>
+                        <input type="text" id="modalLocation" class="form-control" data-i18n-placeholder="addressPlaceholder" placeholder="Farm address for pickup">
+                    </div>
+                    <button type="submit" class="btn btn-gold full-width">
+                        🚀 <span data-i18n="publishListingBtn">Publish & Get Buyers</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         MODAL: BANK PROOF RECEIPT
+         ================================================================ -->
+    <div class="modal-backdrop" id="bankProofModal">
+        <div class="modal-box bank-proof-box">
+            <div class="modal-header">
+                <h3 data-i18n="bankReceiptTitle">🏦 AgroLoop Bank Proof Receipt</h3>
+                <button class="close-modal-btn" id="closeBankProofModal">&times;</button>
+            </div>
+            <div class="modal-body" id="bankProofContent">
+                <div class="bank-receipt">
+                    <div class="receipt-header">
+                        <div class="receipt-logo">🌾 AgroLoop</div>
+                        <div class="receipt-badge" data-i18n="certifiedDoc">CERTIFIED DOCUMENT</div>
+                    </div>
+                    <div class="receipt-divider"></div>
+                    <div class="receipt-field">
+                        <span class="rf-label" data-i18n="receiptFarmerName">Farmer Name</span>
+                        <span class="rf-value" id="receiptFarmerName">—</span>
+                    </div>
+                    <div class="receipt-field">
+                        <span class="rf-label" data-i18n="receiptLocation">Location</span>
+                        <span class="rf-value" id="receiptLocation">—</span>
+                    </div>
+                    <div class="receipt-field">
+                        <span class="rf-label" data-i18n="receiptTotalSold">Total Waste Sold</span>
+                        <span class="rf-value" id="receiptTotalSold">0 Tons</span>
+                    </div>
+                    <div class="receipt-field">
+                        <span class="rf-label" data-i18n="receiptTotalEarned">Total Earnings</span>
+                        <span class="rf-value highlight-green" id="receiptTotalEarned">₹0</span>
+                    </div>
+                    <div class="receipt-field">
+                        <span class="rf-label" data-i18n="receiptCarbonCredits">Carbon Credits Earned</span>
+                        <span class="rf-value" id="receiptCarbonCredits">0</span>
+                    </div>
+                    <div class="receipt-field">
+                        <span class="rf-label" data-i18n="receiptCO2Saved">CO₂ Pollution Prevented</span>
+                        <span class="rf-value" id="receiptCO2Saved">0 kg</span>
+                    </div>
+                    <div class="receipt-field">
+                        <span class="rf-label" data-i18n="receiptDate">Date Generated</span>
+                        <span class="rf-value" id="receiptDate">—</span>
+                    </div>
+                    <div class="receipt-divider"></div>
+                    <div class="receipt-verification">
+                        <span class="rv-icon">✅</span>
+                        <span data-i18n="receiptVerified">GPS Verified • Blockchain Secured</span>
+                    </div>
+                    <div class="receipt-id" id="receiptId">ID: AGRO-XXXXX</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary full-width" id="btnPrintReceipt">
+                    🖨️ <span data-i18n="printReceipt">Print / Download Receipt</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         MODAL: PROFILE EDIT
+         ================================================================ -->
+    <div class="modal-backdrop" id="profileModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 data-i18n="editProfileTitle">👨‍🌾 Edit Profile</h3>
+                <button class="close-modal-btn" id="closeProfileModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-avatar-section">
+                    <div class="profile-avatar-big">
+                        <span class="profile-avatar-emoji" id="profileAvatarEmoji">👨‍🌾</span>
+                    </div>
+                    <div class="profile-avatar-options" id="avatarOptions">
+                        <button class="avatar-opt" data-emoji="👨‍🌾">👨‍🌾</button>
+                        <button class="avatar-opt" data-emoji="👩‍🌾">👩‍🌾</button>
+                        <button class="avatar-opt" data-emoji="🧑‍🌾">🧑‍🌾</button>
+                        <button class="avatar-opt" data-emoji="👨">👨</button>
+                        <button class="avatar-opt" data-emoji="👩">👩</button>
+                        <button class="avatar-opt" data-emoji="🧑">🧑</button>
+                    </div>
+                </div>
+                <form id="profileEditForm">
+                    <div class="form-group">
+                        <label data-i18n="fullNameLabel">Full Name</label>
+                        <input type="text" id="profileEditName" class="form-control" placeholder="Your full name">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="contactLabel">Mobile Number or Email</label>
+                        <input type="text" id="profileEditContact" class="form-control" placeholder="Mobile or Email">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="locationLabel">Village / City / Town</label>
+                        <input type="text" id="profileEditLocation" class="form-control" placeholder="Your location">
+                    </div>
+                    <button type="submit" class="btn btn-primary full-width" style="margin-top:8px;">
+                        ✅ <span data-i18n="saveProfileBtn">Save Changes</span>
+                    </button>
+                </form>
+                <div class="profile-stats-mini">
+                    <div class="ps-item">
+                        <span class="ps-label" data-i18n="profileMemberSince">Member Since</span>
+                        <span class="ps-val" id="profileMemberSince">—</span>
+                    </div>
+                    <div class="ps-item">
+                        <span class="ps-label" data-i18n="totalEarnedLabel">Total Earned</span>
+                        <span class="ps-val highlight-green" id="profileTotalEarned">₹0</span>
+                    </div>
+                </div>
+                <button class="btn btn-logout-profile" id="profileLogoutBtn" type="button">
+                    🚪 <span data-i18n="logoutBtn">Logout</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         MODAL: NOTIFICATIONS
+         ================================================================ -->
+    <div class="modal-backdrop" id="notifModal">
+        <div class="modal-box notif-modal-box">
+            <div class="modal-header">
+                <h3 data-i18n="notificationsTitle">🔔 Notifications</h3>
+                <button class="close-modal-btn" id="closeNotifModal">&times;</button>
+            </div>
+            <div class="modal-body" id="notifList">
+                <!-- Notifications injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         MODAL: LANGUAGE PICKER (Full Screen)
+         ================================================================ -->
+    <div class="modal-backdrop" id="langPickerModal">
+        <div class="modal-box lang-picker-box">
+            <div class="modal-header">
+                <h3>🌐 <span data-i18n="chooseLangLabel">Choose Language</span></h3>
+                <button class="close-modal-btn" id="closeLangPicker">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="lang-grid" id="langGrid">
+                    <button class="lang-option" data-lang="en">
+                        <span class="lang-flag">🇺🇸</span>
+                        <span class="lang-name">English</span>
+                        <span class="lang-native">English</span>
+                    </button>
+                    <button class="lang-option" data-lang="hi">
+                        <span class="lang-flag">🇮🇳</span>
+                        <span class="lang-name">हिन्दी</span>
+                        <span class="lang-native">Hindi</span>
+                    </button>
+                    <button class="lang-option" data-lang="mr">
+                        <span class="lang-flag">🇮🇳</span>
+                        <span class="lang-name">मराठी</span>
+                        <span class="lang-native">Marathi</span>
+                    </button>
+                    <button class="lang-option" data-lang="gu">
+                        <span class="lang-flag">🇮🇳</span>
+                        <span class="lang-name">ગુજરાતી</span>
+                        <span class="lang-native">Gujarati</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="toast-notification" id="toastNotif">
+        <span class="toast-icon">✨</span>
+        <span class="toast-message" id="toastMsg">Action completed!</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
